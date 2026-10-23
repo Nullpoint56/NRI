@@ -530,7 +530,8 @@ NRI_INLINE Result DeviceVal::CreatePipelineLayout(const PipelineLayoutDesc& pipe
             NRI_RETURN_ON_FAILURE(this, !(range.flags & DescriptorRangeBits::VARIABLE_SIZED_ARRAY) || deviceDesc.tiers.bindless != 0, Result::INVALID_ARGUMENT, "'descriptorSets[%u].ranges[%u].flags' has 'VARIABLE_SIZED_ARRAY', but 'tiers.bindless' is 0", i, j);
             NRI_RETURN_ON_FAILURE(this, !(range.flags & DescriptorRangeBits::VARIABLE_SIZED_ARRAY) || deviceDesc.tiers.resourceBinding >= 2, Result::INVALID_ARGUMENT, "'descriptorSets[%u].ranges[%u].flags' has 'VARIABLE_SIZED_ARRAY', but 'tiers.resourceBinding' is less than 2", i, j);
             if (range.shaderStages != StageBits::ALL) {
-                const uint32_t filteredVisibilityMask = range.shaderStages & pipelineLayoutDesc.shaderStages;
+                const StageBits layoutShaderStages = pipelineLayoutDesc.shaderStages == StageBits::ALL ? StageBits::ALL_SHADERS : pipelineLayoutDesc.shaderStages; // "ALL" (0) means all shaders, as in the backends
+                const uint32_t filteredVisibilityMask = range.shaderStages & layoutShaderStages;
 
                 NRI_RETURN_ON_FAILURE(this, (uint32_t)range.shaderStages == filteredVisibilityMask, Result::INVALID_ARGUMENT, "'descriptorSets[%u].ranges[%u].shaderStages' is not compatible with 'shaderStages'", i, j);
             }
@@ -724,7 +725,8 @@ NRI_INLINE Result DeviceVal::CreatePipeline(const GraphicsPipelineDesc& graphics
     }
 
     const PipelineLayoutVal& pipelineLayout = *(PipelineLayoutVal*)graphicsPipelineDesc.pipelineLayout;
-    const StageBits shaderStages = pipelineLayout.GetPipelineLayoutDesc().shaderStages;
+    const StageBits layoutShaderStages = pipelineLayout.GetPipelineLayoutDesc().shaderStages;
+    const StageBits shaderStages = layoutShaderStages == StageBits::ALL ? StageBits::ALL_SHADERS : layoutShaderStages; // "ALL" (0) means all shaders, as in the backends
     bool hasEntryPoint = false;
     uint32_t uniqueShaderStages = 0;
     uint32_t bundleStages = 0;
