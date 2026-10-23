@@ -202,6 +202,10 @@ struct DeviceVK final : public DeviceBase {
     template <typename Implementation, typename Interface, typename... Args>
     inline Result CreateImplementation(Interface*& entity, const Args&... args) {
         Implementation* impl = Allocate<Implementation>(GetAllocationCallbacks(), *this);
+        if (!impl) {
+            entity = nullptr;
+            return Result::OUT_OF_MEMORY;
+        }
         Result result = impl->Create(args...);
 
         if (result != Result::SUCCESS) {

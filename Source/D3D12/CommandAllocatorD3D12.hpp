@@ -13,6 +13,9 @@ NRI_INLINE Result CommandAllocatorD3D12::CreateCommandBuffer(CommandBuffer*& com
     ExclusiveScope lock(m_Lock);
 
     CommandBufferD3D12* commandBufferD3D12 = Allocate<CommandBufferD3D12>(m_Device.GetAllocationCallbacks(), m_Device);
+    if (!commandBufferD3D12)
+        return Result::OUT_OF_MEMORY;
+
     const Result result = commandBufferD3D12->Create(m_CommandListType, m_CommandAllocator);
 
     if (result == Result::SUCCESS) {

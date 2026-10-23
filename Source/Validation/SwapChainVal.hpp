@@ -11,6 +11,13 @@ NRI_INLINE Texture* const* SwapChainVal::GetTextures(uint32_t& textureNum) {
     if (m_Textures.empty()) {
         for (uint32_t i = 0; i < textureNum; i++) {
             TextureVal* textureVal = Allocate<TextureVal>(m_Device.GetAllocationCallbacks(), m_Device, textures[i], true);
+            if (!textureVal) { // out of memory: no textures
+                for (TextureVal* allocated : m_Textures)
+                    Destroy(allocated);
+                m_Textures.clear();
+                textureNum = 0;
+                return nullptr;
+            }
             m_Textures.push_back(textureVal);
         }
     }

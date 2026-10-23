@@ -62,6 +62,10 @@ using namespace nri;
 
 Result CreateDeviceVK(const DeviceCreationDesc& desc, const DeviceCreationVKDesc& descVK, DeviceBase*& device) {
     DeviceVK* impl = Allocate<DeviceVK>(desc.allocationCallbacks, desc.callbackInterface, desc.allocationCallbacks);
+    if (!impl) {
+        device = nullptr;
+        return Result::OUT_OF_MEMORY;
+    }
     Result result = impl->Create(desc, descVK);
 
     if (result != Result::SUCCESS) {
@@ -844,6 +848,10 @@ Result DeviceVK::FillFunctionTable(HelperInterface& table) const {
 static Result NRI_CALL CreateImgui(Device& device, const ImguiDesc& imguiDesc, Imgui*& imgui) {
     DeviceVK& deviceVK = (DeviceVK&)device;
     ImguiImpl* impl = Allocate<ImguiImpl>(deviceVK.GetAllocationCallbacks(), device, deviceVK.GetCoreInterface());
+    if (!impl) {
+        imgui = nullptr;
+        return Result::OUT_OF_MEMORY;
+    }
     Result result = impl->Create(imguiDesc);
 
     if (result != Result::SUCCESS) {
@@ -1269,6 +1277,10 @@ Result DeviceVK::FillFunctionTable(VideoInterface& table) const {
 static Result NRI_CALL CreateStreamer(Device& device, const StreamerDesc& streamerDesc, Streamer*& streamer) {
     DeviceVK& deviceVK = (DeviceVK&)device;
     StreamerImpl* impl = Allocate<StreamerImpl>(deviceVK.GetAllocationCallbacks(), device, deviceVK.GetCoreInterface());
+    if (!impl) {
+        streamer = nullptr;
+        return Result::OUT_OF_MEMORY;
+    }
     Result result = impl->Create(streamerDesc);
 
     if (result != Result::SUCCESS) {
@@ -1387,6 +1399,10 @@ Result DeviceVK::FillFunctionTable(SwapChainInterface& table) const {
 static Result NRI_CALL CreateUpscaler(Device& device, const UpscalerDesc& upscalerDesc, Upscaler*& upscaler) {
     DeviceVK& deviceVK = (DeviceVK&)device;
     UpscalerImpl* impl = Allocate<UpscalerImpl>(deviceVK.GetAllocationCallbacks(), device, deviceVK.GetCoreInterface());
+    if (!impl) {
+        upscaler = nullptr;
+        return Result::OUT_OF_MEMORY;
+    }
     Result result = impl->Create(upscalerDesc);
 
     if (result != Result::SUCCESS) {

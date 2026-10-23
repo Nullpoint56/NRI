@@ -5,8 +5,13 @@ NRI_INLINE Result CommandAllocatorVal::CreateCommandBuffer(CommandBuffer*& comma
     const Result result = GetCoreInterfaceImpl().CreateCommandBuffer(*GetImpl(), commandBufferImpl);
 
     commandBuffer = nullptr;
-    if (result == Result::SUCCESS)
+    if (result == Result::SUCCESS) {
         commandBuffer = (CommandBuffer*)Allocate<CommandBufferVal>(m_Device.GetAllocationCallbacks(), m_Device, commandBufferImpl, m_QueueType, false);
+        if (!commandBuffer) {
+            m_Device.GetCoreInterfaceImpl().DestroyCommandBuffer(commandBufferImpl);
+            return Result::OUT_OF_MEMORY;
+        }
+    }
 
     return result;
 }

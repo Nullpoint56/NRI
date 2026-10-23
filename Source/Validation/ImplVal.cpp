@@ -406,6 +406,8 @@ static inline bool HasValidVideoAV1ReferenceKeys(const VideoAV1ReferenceDesc* re
 
 DeviceBase* CreateDeviceValidation(const DeviceCreationDesc& desc, DeviceBase& device) {
     DeviceVal* deviceVal = Allocate<DeviceVal>(desc.allocationCallbacks, desc.callbackInterface, desc.allocationCallbacks, device);
+    if (!deviceVal)
+        return nullptr;
 
     if (!deviceVal->Create()) {
         Destroy(desc.allocationCallbacks, deviceVal);
@@ -1417,13 +1419,22 @@ static Result NRI_CALL CreateImgui(Device& device, const ImguiDesc& imguiDesc, I
     DeviceVal& deviceVal = (DeviceVal&)device;
 
     ImguiImpl* impl = Allocate<ImguiImpl>(deviceVal.GetAllocationCallbacks(), device, deviceVal.GetCoreInterface());
+    if (!impl) {
+        imgui = nullptr;
+        return Result::OUT_OF_MEMORY;
+    }
     Result result = impl->Create(imguiDesc);
 
     if (result != Result::SUCCESS) {
         Destroy(impl);
         imgui = nullptr;
-    } else
+    } else {
         imgui = (Imgui*)Allocate<ImguiVal>(deviceVal.GetAllocationCallbacks(), deviceVal, impl);
+        if (!imgui) {
+            Destroy(impl);
+            result = Result::OUT_OF_MEMORY;
+        }
+    }
 
     return result;
 }
@@ -2088,13 +2099,22 @@ static Result NRI_CALL CreateStreamer(Device& device, const StreamerDesc& stream
     NRI_RETURN_ON_FAILURE(&deviceVal, isUpload, Result::INVALID_ARGUMENT, "'dynamicBufferMemoryLocation' must be an UPLOAD heap");
 
     StreamerImpl* impl = Allocate<StreamerImpl>(deviceVal.GetAllocationCallbacks(), device, deviceVal.GetCoreInterface());
+    if (!impl) {
+        streamer = nullptr;
+        return Result::OUT_OF_MEMORY;
+    }
     Result result = impl->Create(streamerDesc);
 
     if (result != Result::SUCCESS) {
         Destroy(impl);
         streamer = nullptr;
-    } else
+    } else {
         streamer = (Streamer*)Allocate<StreamerVal>(deviceVal.GetAllocationCallbacks(), deviceVal, impl, streamerDesc);
+        if (!streamer) {
+            Destroy(impl);
+            result = Result::OUT_OF_MEMORY;
+        }
+    }
 
     return result;
 }
@@ -2342,13 +2362,22 @@ static Result NRI_CALL CreateUpscaler(Device& device, const UpscalerDesc& upscal
         NRI_RETURN_ON_FAILURE(&deviceVal, !(upscalerDesc.flags & UpscalerBits::MV_UPSCALED), Result::UNSUPPORTED, "'MV_UPSCALED' is unsupported by 'METALFX_DENOISED'");
 
     UpscalerImpl* impl = Allocate<UpscalerImpl>(deviceVal.GetAllocationCallbacks(), device, deviceVal.GetCoreInterface());
+    if (!impl) {
+        upscaler = nullptr;
+        return Result::OUT_OF_MEMORY;
+    }
     Result result = impl->Create(upscalerDesc);
 
     if (result != Result::SUCCESS) {
         Destroy(impl);
         upscaler = nullptr;
-    } else
+    } else {
         upscaler = (Upscaler*)Allocate<UpscalerVal>(deviceVal.GetAllocationCallbacks(), deviceVal, impl, upscalerDesc);
+        if (!upscaler) {
+            Destroy(impl);
+            result = Result::OUT_OF_MEMORY;
+        }
+    }
 
     return result;
 }

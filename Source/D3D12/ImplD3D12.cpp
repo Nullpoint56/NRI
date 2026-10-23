@@ -61,6 +61,10 @@ using namespace nri;
 
 Result CreateDeviceD3D12(const DeviceCreationDesc& desc, const DeviceCreationD3D12Desc& descD3D12, DeviceBase*& device) {
     DeviceD3D12* impl = Allocate<DeviceD3D12>(desc.allocationCallbacks, desc.callbackInterface, desc.allocationCallbacks);
+    if (!impl) {
+        device = nullptr;
+        return Result::OUT_OF_MEMORY;
+    }
     Result result = impl->Create(desc, descD3D12);
 
     if (result != Result::SUCCESS) {
@@ -826,6 +830,10 @@ Result DeviceD3D12::FillFunctionTable(HelperInterface& table) const {
 static Result NRI_CALL CreateImgui(Device& device, const ImguiDesc& imguiDesc, Imgui*& imgui) {
     DeviceD3D12& deviceD3D12 = (DeviceD3D12&)device;
     ImguiImpl* impl = Allocate<ImguiImpl>(deviceD3D12.GetAllocationCallbacks(), device, deviceD3D12.GetCoreInterface());
+    if (!impl) {
+        imgui = nullptr;
+        return Result::OUT_OF_MEMORY;
+    }
     Result result = impl->Create(imguiDesc);
 
     if (result != Result::SUCCESS) {
@@ -1258,6 +1266,10 @@ Result DeviceD3D12::FillFunctionTable(VideoInterface& table) const {
 static Result NRI_CALL CreateStreamer(Device& device, const StreamerDesc& streamerDesc, Streamer*& streamer) {
     DeviceD3D12& deviceD3D12 = (DeviceD3D12&)device;
     StreamerImpl* impl = Allocate<StreamerImpl>(deviceD3D12.GetAllocationCallbacks(), device, deviceD3D12.GetCoreInterface());
+    if (!impl) {
+        streamer = nullptr;
+        return Result::OUT_OF_MEMORY;
+    }
     Result result = impl->Create(streamerDesc);
 
     if (result != Result::SUCCESS) {
@@ -1376,6 +1388,10 @@ Result DeviceD3D12::FillFunctionTable(SwapChainInterface& table) const {
 static Result NRI_CALL CreateUpscaler(Device& device, const UpscalerDesc& upscalerDesc, Upscaler*& upscaler) {
     DeviceD3D12& deviceD3D12 = (DeviceD3D12&)device;
     UpscalerImpl* impl = Allocate<UpscalerImpl>(deviceD3D12.GetAllocationCallbacks(), device, deviceD3D12.GetCoreInterface());
+    if (!impl) {
+        upscaler = nullptr;
+        return Result::OUT_OF_MEMORY;
+    }
     Result result = impl->Create(upscalerDesc);
 
     if (result != Result::SUCCESS) {

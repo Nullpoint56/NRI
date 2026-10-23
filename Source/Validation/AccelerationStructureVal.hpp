@@ -45,8 +45,13 @@ NRI_INLINE Result AccelerationStructureVal::CreateDescriptor(Descriptor*& descri
     const Result result = GetRayTracingInterfaceImpl().CreateAccelerationStructureDescriptor(*GetImpl(), descriptorImpl);
 
     descriptor = nullptr;
-    if (result == Result::SUCCESS)
+    if (result == Result::SUCCESS) {
         descriptor = (Descriptor*)Allocate<DescriptorVal>(m_Device.GetAllocationCallbacks(), m_Device, descriptorImpl, DescriptorType::ACCELERATION_STRUCTURE);
+        if (!descriptor) {
+            m_Device.GetCoreInterfaceImpl().DestroyDescriptor(descriptorImpl);
+            return Result::OUT_OF_MEMORY;
+        }
+    }
 
     return result;
 }

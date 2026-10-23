@@ -45,6 +45,11 @@ NRI_INLINE Result CommandAllocatorVK::CreateCommandBuffer(CommandBuffer*& comman
     NRI_RETURN_ON_BAD_VKRESULT(&m_Device, vkResult, "vkAllocateCommandBuffers");
 
     CommandBufferVK* commandBufferVK = Allocate<CommandBufferVK>(m_Device.GetAllocationCallbacks(), m_Device);
+    if (!commandBufferVK) {
+        vk.FreeCommandBuffers(m_Device, m_Handle, 1, &commandBufferHandle);
+        return Result::OUT_OF_MEMORY;
+    }
+
     commandBufferVK->Create(m_Handle, commandBufferHandle, m_Type);
 
     commandBuffer = (CommandBuffer*)commandBufferVK;

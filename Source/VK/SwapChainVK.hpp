@@ -437,6 +437,9 @@ Result SwapChainVK::Create(const SwapChainDesc& swapChainDesc) {
             desc.sampleNum = 1;
 
             TextureVK* texture = Allocate<TextureVK>(m_Device.GetAllocationCallbacks(), m_Device);
+            if (!texture)
+                return Result::OUT_OF_MEMORY;
+
             texture->Create(desc);
 
             m_Textures[i] = texture;
@@ -446,6 +449,9 @@ Result SwapChainVK::Create(const SwapChainDesc& swapChainDesc) {
     // Latency fence
     if (allowLowLatency) {
         m_LatencyFence = Allocate<FenceVK>(m_Device.GetAllocationCallbacks(), m_Device);
+        if (!m_LatencyFence)
+            return Result::OUT_OF_MEMORY;
+
         FenceDesc fenceDesc = {};
         m_LatencyFence->Create(fenceDesc);
     }
