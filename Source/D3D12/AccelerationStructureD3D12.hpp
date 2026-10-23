@@ -50,6 +50,7 @@ void AccelerationStructureD3D12::GetMemoryDesc(MemoryLocation memoryLocation, Me
     D3D12_RESOURCE_DESC1 resourceDesc = {};
     m_Device.GetResourceDesc(bufferDesc, resourceDesc);
     m_Device.GetMemoryDesc(memoryLocation, resourceDesc, memoryDesc);
+    memoryDesc.alignment = std::max(memoryDesc.alignment, (uint32_t)D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT); // a tightly aligned buffer may be less
 }
 
 NRI_INLINE void AccelerationStructureD3D12::SetDebugName(const char* name) {

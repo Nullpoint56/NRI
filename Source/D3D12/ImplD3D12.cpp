@@ -1002,6 +1002,7 @@ static void NRI_CALL GetAccelerationStructureMemoryDesc2(const Device& device, c
     D3D12_RESOURCE_DESC1 resourceDesc = {};
     deviceD3D12.GetResourceDesc(bufferDesc, resourceDesc);
     deviceD3D12.GetMemoryDesc(memoryLocation, resourceDesc, memoryDesc);
+    memoryDesc.alignment = std::max(memoryDesc.alignment, (uint32_t)D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT); // a tightly aligned buffer may be less
 }
 
 static void NRI_CALL GetMicromapMemoryDesc2(const Device& device, const MicromapDesc& micromapDesc, MemoryLocation memoryLocation, MemoryDesc& memoryDesc) {
