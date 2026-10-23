@@ -457,6 +457,10 @@ NRI_INLINE Result DeviceVal::CreateDescriptor(const TextureViewDesc& textureView
     NRI_RETURN_ON_FAILURE(this, textureViewDescFixed.layerOffset + layerNum <= textureDesc.layerNum, Result::INVALID_ARGUMENT,
         "'layerOffset=%u' + 'layerNum=%u' must be <= texture 'layerNum=%u'", textureViewDescFixed.layerOffset, layerNum, textureDesc.layerNum);
 
+    bool isNonArrayView = textureViewDescFixed.type == TextureView::TEXTURE || textureViewDescFixed.type == TextureView::SUBPASS_INPUT || textureViewDescFixed.type == TextureView::STORAGE_TEXTURE || textureViewDescFixed.type == TextureView::TEXTURE_CUBE;
+    NRI_RETURN_ON_FAILURE(this, textureDesc.type == TextureType::TEXTURE_3D || !isNonArrayView || textureViewDescFixed.layerOffset == 0, Result::INVALID_ARGUMENT,
+        "'layerOffset=%u' must be 0 for a non-array 'viewType' (D3D12 can't select a layer there), use the '_ARRAY' view type", textureViewDescFixed.layerOffset);
+
     NRI_RETURN_ON_FAILURE(this, textureViewDescFixed.sliceOffset + sliceNum <= textureDesc.depth, Result::INVALID_ARGUMENT,
         "'sliceOffset=%u' + 'sliceNum=%u' must be <= texture 'depth=%u'", textureViewDescFixed.sliceOffset, sliceNum, textureDesc.depth);
 

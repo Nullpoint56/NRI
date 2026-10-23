@@ -69,6 +69,13 @@ Result DescriptorD3D12::Create(const TextureViewDesc& textureViewDesc) {
     Dim_t layerNum = textureViewDescFixed.layerNum == REMAINING ? (textureDesc.layerNum - textureViewDescFixed.layerOffset) : textureViewDescFixed.layerNum;
     Dim_t sliceNum = textureViewDescFixed.sliceNum == REMAINING ? (textureDesc.depth - textureViewDescFixed.sliceOffset) : textureViewDescFixed.sliceNum;
 
+    // Non-array 1D and 2D views (and a cube view) have no array slice in D3D12, so they can't select a layer
+    const bool isNonArrayView = textureViewDescFixed.type == TextureView::TEXTURE || textureViewDescFixed.type == TextureView::SUBPASS_INPUT || textureViewDescFixed.type == TextureView::STORAGE_TEXTURE || textureViewDescFixed.type == TextureView::TEXTURE_CUBE;
+    if (textureDesc.type != TextureType::TEXTURE_3D && isNonArrayView && textureViewDescFixed.layerOffset != 0) {
+        NRI_REPORT_ERROR(&m_Device, "'layerOffset=%u' can't be selected by a non-array view in D3D12, use the '_ARRAY' view type", textureViewDescFixed.layerOffset);
+        return Result::INVALID_ARGUMENT;
+    }
+
     m_ViewDesc.texture = {};
     m_ViewDesc.texture.layerOffset = textureViewDescFixed.layerOffset;
     m_ViewDesc.texture.layerNum = layerNum;
