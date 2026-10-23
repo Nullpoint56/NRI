@@ -123,6 +123,9 @@ cmake_dependent_option(NRI_ENABLE_D3D11_SUPPORT "Enable D3D11 backend" ON "WIN32
 cmake_dependent_option(NRI_ENABLE_D3D12_SUPPORT "Enable D3D12 backend" ON "WIN32" OFF)
 cmake_dependent_option(NRI_ENABLE_NVTX_SUPPORT "Annotations for NVIDIA Nsight Systems" ON "NOT IOS" OFF)
 cmake_dependent_option(NRI_ENABLE_VK_SUPPORT "Enable Vulkan backend" ON "NOT IOS" OFF)
+# PrismNRI patch 0007: the Apple link of the loader (PR 134) is an IDE convenience that makes the library
+# unloadable without a loader on the default dyld paths; everywhere else NRI loads the loader at runtime.
+cmake_dependent_option(NRI_ENABLE_VULKAN_LOADER_LINKING "Link the Vulkan loader into the library (otherwise it is loaded at runtime)" ON "APPLE; NRI_ENABLE_VK_SUPPORT" OFF)
 cmake_dependent_option(NRI_ENABLE_NIS_SDK "Enable NVIDIA Image Sharpening SDK" OFF "NOT IOS" OFF)
 cmake_dependent_option(NRI_ENABLE_WGPU_SUPPORT "Enable WebGPU backend" ${GITHUB_CI} "WGPU_BIN_ARCHITECTURE; NOT ANDROID; NOT IOS" OFF)
 cmake_dependent_option(NRI_ENABLE_METAL_SUPPORT "Enable Metal 4 backend" ${NRI_METAL_SUPPORT_DEFAULT} "APPLE" OFF)
@@ -796,7 +799,7 @@ endif()
 
 # VK
 if(NRI_ENABLE_VK_SUPPORT)
-    if(APPLE)
+    if(NRI_ENABLE_VULKAN_LOADER_LINKING)
         find_package(Vulkan REQUIRED)
     endif()
 
@@ -894,7 +897,7 @@ if(NRI_ENABLE_VK_SUPPORT)
     target_link_libraries(NRI_VK
         PRIVATE
             NRI_Shared
-            $<$<BOOL:${APPLE}>:
+            $<$<BOOL:${NRI_ENABLE_VULKAN_LOADER_LINKING}>:
                 ${Vulkan_LIBRARIES}
             >
     )
