@@ -1794,8 +1794,8 @@ void DeviceVK::FillCreateInfo(const TextureDesc& textureDesc, VkImageCreateInfo&
     if ((textureDesc.usage & TextureUsageBits::HOST_TRANSFER) && m_IsSupported.hostImageCopy)
         info.usage |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT;
     info.sharingMode = (m_NumActiveFamilyIndices <= 1 || textureDesc.sharingMode == SharingMode::EXCLUSIVE) ? VK_SHARING_MODE_EXCLUSIVE : VK_SHARING_MODE_CONCURRENT;
-    info.queueFamilyIndexCount = m_NumActiveFamilyIndices;
-    info.pQueueFamilyIndices = m_ActiveQueueFamilyIndices.data();
+    info.queueFamilyIndexCount = info.sharingMode == VK_SHARING_MODE_CONCURRENT ? m_NumActiveFamilyIndices : 0; // ignored for EXCLUSIVE, but validation layers warn if provided
+    info.pQueueFamilyIndices = info.sharingMode == VK_SHARING_MODE_CONCURRENT ? m_ActiveQueueFamilyIndices.data() : nullptr;
     info.initialLayout = IsMemoryZeroInitializationEnabled() ? VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT : VK_IMAGE_LAYOUT_UNDEFINED;
 }
 
