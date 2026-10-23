@@ -175,8 +175,8 @@ static inline D3D12_BARRIER_SYNC GetBarrierSyncFlags(StageBits stageBits, Access
         flags |= D3D12_BARRIER_SYNC_BUILD_RAYTRACING_ACCELERATION_STRUCTURE | D3D12_BARRIER_SYNC_COPY_RAYTRACING_ACCELERATION_STRUCTURE;
 
         // There is no "EMIT_POSTBUILD_INFO" flag in VK, moreover "VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR" already includes "ACCELERATION_STRUCTURE_COPY".
-        // "EMIT_POSTBUILD_INFO" can't be set if "write" access is expected.
-        if (!(accessBits & AccessBits::ACCELERATION_STRUCTURE_WRITE))
+        // "EMIT_POSTBUILD_INFO" can't be set if "write" access is expected ("MICROMAP_WRITE" is the same D3D12 write access).
+        if (!(accessBits & (AccessBits::ACCELERATION_STRUCTURE_WRITE | AccessBits::MICROMAP_WRITE)))
             flags |= D3D12_BARRIER_SYNC_EMIT_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO;
     }
 
