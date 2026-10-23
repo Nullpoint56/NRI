@@ -289,7 +289,10 @@ static VkBool32 VKAPI_PTR MessageCallback(VkDebugUtilsMessageSeverityFlagBitsEXT
     } else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
         severity = Message::WARNING;
 
-    device.ReportMessage(severity, result, __FILE__, __LINE__, "[%u] %s", callbackData->messageIdNumber, callbackData->pMessage);
+    if (callbackData->pMessageIdName)
+        device.ReportMessage(severity, result, __FILE__, __LINE__, "[%u] %s: %s", callbackData->messageIdNumber, callbackData->pMessageIdName, callbackData->pMessage);
+    else
+        device.ReportMessage(severity, result, __FILE__, __LINE__, "[%u] %s", callbackData->messageIdNumber, callbackData->pMessage);
 
     return VK_FALSE;
 }
