@@ -32,6 +32,7 @@ PipelineLayoutVK::~PipelineLayoutVK() {
 
 Result PipelineLayoutVK::Create(const PipelineLayoutDesc& pipelineLayoutDesc) {
     m_ShaderStages = GetEffectiveShaderStages(pipelineLayoutDesc.shaderStages);
+    m_ShaderStages &= m_Device.GetSupportedShaderStages();
 
     // Binding offsets
     bool ignoreGlobalSPIRVOffsets = (pipelineLayoutDesc.flags & PipelineLayoutBits::IGNORE_GLOBAL_SPIRV_OFFSETS) != 0;
